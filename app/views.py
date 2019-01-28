@@ -124,17 +124,15 @@ def update_limit(month):
     month_data = CustomPeriods.query.get(month)
     month_amount = sum(spending.amount for spending in Spending.query.filter_by(month=month).all())
     if request.method == "POST" and form.validate_on_submit():
-        if form.new_limit.data < month_amount:
+        new_limit = round(form.new_limit.data, 2)
+        if new_limit < month_amount:
             error_message = "Лимит должен превышать затраты выбранного месяца"
-            if not form.errors.get("new_limit"):
-                form.errors["new_limit"] = [error_message]
-            else:
-                form.errors["new_limit"].append(error_message)
+            form.errors["new_limit"] = [error_message]
         else:
             if month_data:
-                month_data.limit = form.new_limit.data
+                month_data.limit = new_limit
             else:
-                new_month_data = CustomPeriods(id=month, limit=form.new_limit.data)
+                new_month_data = CustomPeriods(id=month, limit=new_limit)
                 db.session.add(new_month_data)
             try:
                 db.session.commit()
@@ -146,7 +144,7 @@ def update_limit(month):
                 return redirect("/add-cost")
     month_limit = month_data.limit if month_data else config["default_limit"]
     return render("/limit-update-form.html", title="Обновление месячных лимитов", form=form,
-                  month_limit=round(month_limit, 2), month_amount=round(month_amount, 2))
+                  month_limit=month_limit, month_amount=month_amount)
 
 
 @application.route("/settings", methods=["GET", "POST"])
@@ -163,20 +161,21 @@ def settings():
     limit_form = CustomLimit()
     # Проверяем default_limit т.к. is_submitting сломало
     if request.method == "POST" and request.form.get("default_limit") and settings_form.validate_on_submit():
-        config["default_limit"] = settings_form.default_limit.data
+        config["default_limit"] = round(settings_form.default_limit.data, 2)
         config["adaptive_limit"] = settings_form.adaptive_limit.data
         with open("app.json", "w") as config_file:
             config_file.write(json.dumps(config))
         flash("Конфигурация успешно обновлена!")
     elif request.method == "POST" and request.form.get("limit") and limit_form.validate_on_submit():
         year, month = (int(item) for item in limit_form.first_month.data.split("-"))
+        new_limit = round(limit_form.limit.data, 2)
         if limit_form.last_month.data.strip():
             last_year, last_month = (int(item) for item in limit_form.last_month.data.split("-"))
             if year == last_year and month >= last_month or year > last_year:
                 limit_form.errors["last_month"] = ["Вторая дата должна быть больше первой"]
             else:
                 while year <= last_year or month <= last_month:
-                    update_month([year, month], limit_form.limit.data)
+                    update_month([year, month], new_limit)
                     if month == 12:
                         year += 1
                         month = 1
@@ -190,7 +189,7 @@ def settings():
                 else:
                     flash("Лимиты успешно обновлены")
         else:
-            update_month([year, month], limit_form.limit.data)
+            update_month([year, month], new_limit)
             try:
                 db.session.commit()
             except SQLAlchemyError:
