@@ -1,0 +1,33 @@
+{% extends "root.html" %}
+{% block content %}
+<div class="container">
+    <form action="" method="post" name="add-category" class="form-group w-50 m-auto">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.category.label }}
+            {{ form.category(class="form-control") }}
+            {% for error in form.errors.category %}
+            <h6 class="text-danger">{{ error }}</h6>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="col-6 form-group">
+                {{ form.date.label }}
+                {{ form.date(class="form-control", placeholder="ГГГГ-ММ-ДД") }}
+                {% for error in form.errors.date %}
+                <h6 class="text-danger">{{ error }}</h6>
+                {% endfor %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.amount.label }}
+                {{ form.amount(class="form-control", placeholder="1000") }}
+                {% for error in form.errors.amount %}
+                <h6 class="text-danger">{{ error }}</h6>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary d-block mt-3">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

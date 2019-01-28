@@ -1,0 +1,28 @@
+{% extends "root.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h3 class="text-primary text-center">{{ title }}</h3>
+    <p>Суммарные расходы: <strong>{{ month_amount }}</strong></p>
+    <p>Лимит: <strong>{{ month_limit }}</strong></p>
+    <table class="table mt-3">
+        <thead>
+        <tr>
+            <td scope="col" class="text-primary"><b>День</b></td>
+            {% for category in categories %}
+            <td scope="col" class="text-center">{{ category.name }}</td>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for day in table %}
+        <tr>
+            <td scope="row"><b>{{ loop.index }}</b></td>
+            {% for amount_by_category in day %}
+            <td class="text-center">{{ amount_by_category }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

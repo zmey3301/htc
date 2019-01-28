@@ -1,0 +1,17 @@
+{% extends "root.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        {% for month in data %}
+        <div class="col-3">
+            <div class="card p-2 text-decoration-none">
+                <h4 class="card-title text-center">{{ month["month"] }}</h4>
+                <h5 class="text-center">Расходы: <span class="text-primary">{{ month["amount"] }}</span></h5>
+                <h5 class="text-center">Лимит: <span class="text-danger">{{ month["limit"] }}</span></h5>
+                <a href="/month-detail/{{ month['month'] }}" class="btn btn-primary mt-2">Перейти к детализации</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
