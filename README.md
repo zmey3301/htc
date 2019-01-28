@@ -8,7 +8,7 @@
 
     **dev**-вариант - `flask run`;
 
-    **production**-вариант - `gunicorn {-m $threads} app`.
+    **production**-вариант - `gunicorn app`.
 4. При необходимости для очистки базы данных можно использовать `./update_db.py clear`.
 
 ### Пояснительная записка:
