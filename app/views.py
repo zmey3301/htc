@@ -1,7 +1,7 @@
 from app import application, db, config
 from app.model import Categories, Spending, CustomPeriods
 from app.forms import AddCategory, AddSpending, UpdateLimit, Settings, CustomLimit
-from app.helpers import render, get_month_stamp
+from app.helpers import render, get_month_stamp, get_month_stat
 from flask import request, flash, abort, redirect
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
@@ -14,7 +14,7 @@ month_stamp_regex = "^\d{4}\.(?:1[0-2]|[0-9])$"
 @application.route("/")
 @application.route("/index")
 def index():
-    def get_limit(month):
+    def get_limit(month: str) -> float:
         month_data = CustomPeriods.query.get(month)
         return month_data.limit if month_data else config["default_limit"]
     data = Spending.query.all()
@@ -31,7 +31,7 @@ def index():
 
 
 @application.route("/month-detail/<string:month_stamp>")
-def month_detail(month_stamp):
+def month_detail(month_stamp: str):
     if not re.match(month_stamp_regex, month_stamp):
         return abort(404)
     else:
@@ -47,11 +47,10 @@ def month_detail(month_stamp):
             )
             for day in Calendar().itermonthdays(year, month) if day
         )
-        month_data = CustomPeriods.query.get(month_stamp)
-        month_limit = month_data.limit if month_data else config["default_limit"]
-        month_amount = sum(spending.amount for spending in Spending.query.filter_by(month=month_stamp).all())
-        return render("/month-detail.html", title=f"Отчет за месяц {month_stamp}", month=month_stamp,
-                      table=table, categories=categories, month_limit=month_limit, month_amount=month_amount)
+        month_data = get_month_stat(month_stamp)
+        return render("/month-detail.html", title=f"Отчет за месяц {month_stamp}",
+                      month=month_stamp, table=table, categories=categories,
+                      month_limit=month_data["limit"], month_amount=month_data["spending"])
 
 
 @application.route("/add-category", methods=["GET", "POST"])
@@ -117,7 +116,7 @@ def add_cost():
 
 
 @application.route("/update-limit/<string:month>", methods=["GET", "POST"])
-def update_limit(month):
+def update_limit(month: str):
     if not re.match(month_stamp_regex, month):
         return abort(404)
     form = UpdateLimit()
@@ -149,7 +148,7 @@ def update_limit(month):
 
 @application.route("/settings", methods=["GET", "POST"])
 def settings():
-    def update_month(stamp_data, limit):
+    def update_month(stamp_data: list, limit: float):
         stamp = get_month_stamp(stamp_data)
         data = CustomPeriods.query.get(stamp)
         if data:

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import render_template
 
 
-def get_month_stamp(date=None):
+def get_month_stamp(date=None) -> str:
     """
     Generating month stamp (yyyy.m) 4 db
     :param date: datetime object or list of int, or timestamp
@@ -19,13 +19,12 @@ def get_month_stamp(date=None):
     return f"{date.tm_year}.{date.tm_mon}"
 
 
-def get_month_stat():
+def get_month_stat(date) -> dict:
     """
     Getting current month stat 4 header render
     :return: current month stat dict
     """
-    today = datetime.today().timetuple()
-    stamp = f"{today.tm_year}.{today.tm_mon}"
+    stamp = date if type(date) is str else get_month_stamp(date)
     month_object = model.CustomPeriods.query.get(stamp)
     limit = month_object.limit if month_object else config["default_limit"]
     spending = sum(spending.amount for spending in model.Spending.query.filter_by(month=stamp))
@@ -35,7 +34,7 @@ def get_month_stat():
     }
 
 
-def render(template, **kwargs):
+def render(template: str, **kwargs):
     """
     render_template proxy 4 default vars adding
     :param template: Jinja2 template path
