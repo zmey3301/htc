@@ -4,7 +4,7 @@ from app import db
 class Categories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
-    spending = db.relation("Spending", backref="category", lazy='dynamic')
+    spending = db.relation("Spending", backref="category", lazy="dynamic")
 
     def __repr__(self):
         return f"<Category {self.name}>"

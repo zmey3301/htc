@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+from json import loads
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from json import loads
+
 application = Flask(__name__)
 application.config.from_object("flask-config")
 Bootstrap(application)

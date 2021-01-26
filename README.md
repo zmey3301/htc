@@ -8,7 +8,9 @@
 ### Деплой:
 1. При необходимости разворачиваем virtualenv.
 2. Устанавливаем зависимости:
-`pip install -r requirements.txt`
+`pip install -r requirements/base.txt`
+   
+   Или, в случае с dev окружением `pip install -r requirements/dev.txt`
 
     Безусловно для описания зависимостей можно было использовать pipfile, однако в ТЗ был выбран requirements.txt.
 3. Запускаем сервер:
